@@ -1,0 +1,17 @@
+Apple Health Atlas
+
+This project includes or depends on the following open-source software:
+
+- ECharts
+  Copyright 2017-2025 The Apache Software Foundation
+  Licensed under the Apache License, Version 2.0
+  https://www.apache.org/licenses/LICENSE-2.0
+
+- JSZip
+  Copyright 2009-2025 Stuart Knightley, David Duponchel, Franz Buchinger,
+  António Afonso and contributors
+  Licensed under the MIT License or GPL-3.0
+  https://github.com/Stuk/jszip/blob/main/LICENSE.markdown
+
+Apple Health is a trademark of Apple Inc. This project is not affiliated with,
+endorsed by, or sponsored by Apple Inc.

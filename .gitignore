@@ -1,0 +1,25 @@
+node_modules/
+.DS_Store
+*.log
+work/
+
+# Apple Health exports and all real personal data
+*.zip
+*.csv
+*.parquet
+*.duckdb
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+web/health_data.js
+outputs/
+coverage/
+
+# Only synthetic fixtures are allowed
+!tests/fixtures/*.zip
+
+# Local tooling
+.idea/
+.vscode/
+.env
+.env.*

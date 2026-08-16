@@ -1,0 +1,2273 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apple Health Atlas</title>
+  <style>
+    :root {
+      --paper: #f3f0e7;
+      --paper-2: #fbfaf5;
+      --ink: #172527;
+      --muted: #697475;
+      --line: #d8d3c5;
+      --teal: #24786f;
+      --teal-deep: #164d49;
+      --teal-soft: #d9ebe5;
+      --coral: #d8654d;
+      --coral-soft: #f4ded7;
+      --amber: #c9952f;
+      --amber-soft: #f4ead2;
+      --blue: #507c9f;
+      --blue-soft: #dfe8ef;
+      --plum: #8e6f91;
+      --green: #4e8a64;
+      --shadow: 0 10px 30px rgba(31, 41, 39, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(rgba(23, 37, 39, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23, 37, 39, 0.018) 1px, transparent 1px),
+        var(--paper);
+      background-size: 28px 28px;
+      color: var(--ink);
+      font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      letter-spacing: 0;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .file-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      background:
+        linear-gradient(rgba(23, 37, 39, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23, 37, 39, 0.018) 1px, transparent 1px),
+        var(--paper);
+      background-size: 28px 28px;
+    }
+
+    .file-screen[hidden] {
+      display: none;
+    }
+
+    .file-card {
+      width: min(720px, 100%);
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper-2);
+      box-shadow: var(--shadow);
+    }
+
+    .file-drop {
+      display: grid;
+      place-items: center;
+      gap: 12px;
+      min-height: 240px;
+      padding: 22px;
+      border: 1px dashed var(--teal);
+      border-radius: 8px;
+      background: #eef5f1;
+      color: var(--teal-deep);
+      text-align: center;
+      cursor: pointer;
+      transition: background 160ms ease, border-color 160ms ease;
+    }
+
+    .file-drop:hover,
+    .file-drop.dragging {
+      border-color: var(--teal-deep);
+      background: #e1f0e9;
+    }
+
+    .file-drop strong {
+      font-size: 18px;
+    }
+
+    .file-drop small {
+      max-width: 440px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .privacy-note {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 16px 0 0;
+    }
+
+    .privacy-note span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 8px;
+      border-radius: 5px;
+      background: var(--teal-soft);
+      color: var(--teal-deep);
+      font-size: 12px;
+    }
+
+    .file-status {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      min-height: 20px;
+    }
+
+    .open-button {
+      margin-top: 14px;
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--teal-deep);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .open-button.secondary {
+      background: var(--paper-2);
+      color: var(--ink);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 68px;
+      padding: 12px max(18px, calc((100vw - 1480px) / 2));
+      background: rgba(243, 240, 231, 0.94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      display: inline-grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--teal-deep);
+      color: #fff;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .brand-title {
+      font-family: "DIN Condensed", "Avenir Next Condensed", "PingFang SC", sans-serif;
+      font-size: 21px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .brand-subtitle {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .range-control {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px;
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+    }
+
+    .range-control button {
+      min-width: 62px;
+      padding: 7px 12px;
+      border: 0;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .range-control button.active {
+      background: var(--teal-deep);
+      color: #fff;
+    }
+
+    .tabs {
+      position: sticky;
+      top: 68px;
+      z-index: 20;
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      padding: 8px max(18px, calc((100vw - 1480px) / 2));
+      background: rgba(243, 240, 231, 0.96);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+      scrollbar-width: none;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-button {
+      flex: 0 0 auto;
+      padding: 8px 14px;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tab-button.active {
+      color: var(--teal-deep);
+      border-bottom-color: var(--teal-deep);
+      font-weight: 700;
+    }
+
+    main {
+      width: min(1480px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 18px 0 64px;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+      animation: panel-in 240ms ease-out;
+    }
+
+    @keyframes panel-in {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(240px, 0.9fr) minmax(0, 1.6fr);
+      gap: 24px;
+      align-items: stretch;
+      min-height: 270px;
+      padding: 28px;
+      border-radius: 8px;
+      background: var(--teal-deep);
+      color: #f8f3e9;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 22px;
+    }
+
+    .eyebrow {
+      color: #9fd4c7;
+      font-family: "DIN Condensed", "Avenir Next Condensed", sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      max-width: 760px;
+      margin: 8px 0 10px;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "PingFang SC", sans-serif;
+      font-size: clamp(36px, 5vw, 72px);
+      line-height: 0.98;
+      font-weight: 800;
+    }
+
+    .hero-summary {
+      max-width: 660px;
+      margin: 0;
+      color: #dce8e5;
+      font-size: 15px;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      color: #b7ccc7;
+      font-size: 12px;
+    }
+
+    .hero-kpis {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .hero-stat {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 96px;
+      padding: 15px 17px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 7px;
+    }
+
+    .hero-stat .label {
+      color: #b9d0ca;
+      font-size: 12px;
+    }
+
+    .hero-stat .value {
+      margin-top: 5px;
+      font-family: "DIN Condensed", "Avenir Next Condensed", sans-serif;
+      font-size: clamp(25px, 3vw, 39px);
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .hero-stat .unit {
+      margin-left: 5px;
+      color: #9fd4c7;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .hero-stat .delta {
+      margin-top: 7px;
+      color: #c7d9d4;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 14px 0;
+    }
+
+    .insight {
+      min-height: 126px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--teal);
+      border-radius: 7px;
+      background: var(--paper-2);
+    }
+
+    .insight[data-level="warn"] {
+      border-left-color: var(--amber);
+    }
+
+    .insight[data-level="positive"] {
+      border-left-color: var(--green);
+    }
+
+    .insight h3 {
+      margin: 0 0 7px;
+      font-size: 15px;
+    }
+
+    .insight p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+      margin: 30px 0 12px;
+    }
+
+    .section-head:first-child {
+      margin-top: 16px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "PingFang SC", sans-serif;
+      font-size: 27px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .section-head p {
+      max-width: 560px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .panel {
+      grid-column: span 6;
+      min-width: 0;
+      padding: 15px 16px 11px;
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      box-shadow: 0 5px 18px rgba(31, 41, 39, 0.035);
+    }
+
+    .panel.span-12 {
+      grid-column: span 12;
+    }
+
+    .panel.span-8 {
+      grid-column: span 8;
+    }
+
+    .panel.span-7 {
+      grid-column: span 7;
+    }
+
+    .panel.span-5 {
+      grid-column: span 5;
+    }
+
+    .panel.span-4 {
+      grid-column: span 4;
+    }
+
+    .panel.span-3 {
+      grid-column: span 3;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 42px;
+      margin-bottom: 4px;
+    }
+
+    .panel-head h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .panel-head p {
+      max-width: 70%;
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .chart {
+      width: 100%;
+      height: 340px;
+    }
+
+    .chart.tall {
+      height: 430px;
+    }
+
+    .chart.short {
+      height: 250px;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .data-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      min-width: 680px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .data-table th {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: rgba(23, 37, 39, 0.025);
+    }
+
+    .data-table td.num {
+      font-family: "DIN Condensed", "Avenir Next Condensed", sans-serif;
+      font-size: 15px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .tag {
+      display: inline-block;
+      margin: 1px 3px 1px 0;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--teal-soft);
+      color: var(--teal-deep);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .tag.blue {
+      background: var(--blue-soft);
+      color: #31546e;
+    }
+
+    .tag.coral {
+      background: var(--coral-soft);
+      color: #8c3e2c;
+    }
+
+    .tag.amber {
+      background: var(--amber-soft);
+      color: #755315;
+    }
+
+    .empty-note {
+      padding: 34px 16px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .footer {
+      padding: 24px max(18px, calc((100vw - 1480px) / 2)) 38px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-size: 12px;
+    }
+
+    .footer strong {
+      color: var(--ink);
+    }
+
+    @media (max-width: 980px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 44px;
+      }
+
+      .hero-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .insight-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel,
+      .panel.span-12,
+      .panel.span-8,
+      .panel.span-7,
+      .panel.span-5,
+      .panel.span-4,
+      .panel.span-3 {
+        grid-column: span 12;
+      }
+
+      .section-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .section-head p {
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        position: static;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 7px;
+      }
+
+      .tabs {
+        position: static;
+        top: auto;
+      }
+
+      .brand-subtitle {
+        display: none;
+      }
+
+      .range-control {
+        width: 100%;
+      }
+
+      .range-control button {
+        flex: 1;
+        min-width: 0;
+      }
+
+      main {
+        width: min(100% - 22px, 1480px);
+        padding-top: 11px;
+      }
+
+      .hero {
+        min-height: 0;
+        padding: 20px 18px;
+      }
+
+      .hero h1 {
+        font-size: 37px;
+      }
+
+      .hero-kpis {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-stat {
+        min-height: 82px;
+      }
+
+      .mini-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart {
+        height: 300px;
+      }
+
+      .chart.tall {
+        height: 360px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="file-screen" id="file-screen">
+    <div class="file-card">
+      <div class="brand" style="margin-bottom: 18px;">
+        <span class="brand-mark">H</span>
+        <div>
+          <div class="brand-title">Apple Health Atlas</div>
+          <div class="brand-subtitle">Local-first health export explorer</div>
+        </div>
+      </div>
+      <div class="file-drop" id="file-drop" role="button" tabindex="0" aria-label="选择 Apple Health ZIP">
+        <strong>选择 Apple Health CSV ZIP</strong>
+        <small>文件只在当前浏览器中解析，不上传到任何服务器。</small>
+      </div>
+      <div class="privacy-note">
+        <span>本地解析</span>
+        <span>无上传</span>
+        <span>无遥测</span>
+        <span>非医疗建议</span>
+      </div>
+      <input id="file-input" type="file" accept=".zip,application/zip" hidden>
+      <div class="file-status" id="file-status" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <header class="topbar" id="app-header" hidden>
+    <div class="brand">
+      <span class="brand-mark">H</span>
+      <div>
+        <div class="brand-title">Apple Health Atlas</div>
+        <div class="brand-subtitle" id="brand-subtitle">等待健康数据</div>
+      </div>
+    </div>
+    <button class="open-button secondary" id="change-file">更换文件</button>
+    <div class="range-control" aria-label="时间范围">
+      <button data-range="90" class="active">近 90 天</button>
+      <button data-range="365">近 1 年</button>
+      <button data-range="0">全部</button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="app-tabs" aria-label="数据视角" hidden>
+    <button class="tab-button active" data-tab="overview">总览</button>
+    <button class="tab-button" data-tab="activity">活动能量</button>
+    <button class="tab-button" data-tab="sleep">睡眠恢复</button>
+    <button class="tab-button" data-tab="heart">心率代谢</button>
+    <button class="tab-button" data-tab="mobility">步态体能</button>
+    <button class="tab-button" data-tab="habits">身体习惯</button>
+    <button class="tab-button" data-tab="quality">数据质量</button>
+  </nav>
+
+  <main id="app-main" hidden>
+    <section id="tab-overview" class="tab-panel active">
+      <div class="hero">
+        <div class="hero-copy">
+          <div>
+            <div class="eyebrow">Personal Health Atlas</div>
+            <h1 id="hero-title">把身体数据，变成一张可读的图谱</h1>
+            <p class="hero-summary" id="hero-summary"></p>
+          </div>
+          <div class="hero-meta">
+            <span id="hero-records"></span>
+            <span id="hero-files"></span>
+            <span id="hero-source"></span>
+          </div>
+        </div>
+        <div class="hero-kpis" id="hero-kpis"></div>
+      </div>
+
+      <div class="insight-grid" id="insight-grid"></div>
+
+      <div class="section-head">
+        <h2>全景快照</h2>
+        <p>优先使用同日可信度更高的设备来源，避免多设备重复计入。</p>
+      </div>
+      <div class="chart-grid">
+        <article class="panel span-8">
+          <div class="panel-head">
+            <h3>月均步数</h3>
+            <p>日步数按自然月平均</p>
+          </div>
+          <div id="overview-steps" class="chart"></div>
+        </article>
+        <article class="panel span-4">
+          <div class="panel-head">
+            <h3>训练构成</h3>
+            <p>当前时间范围内训练时长</p>
+          </div>
+          <div id="overview-workouts" class="chart"></div>
+        </article>
+        <article class="panel span-7">
+          <div class="panel-head">
+            <h3>睡眠与腕温</h3>
+      <p>主睡眠时长；腕温仅在设备提供时显示</p>
+          </div>
+          <div id="overview-sleep" class="chart"></div>
+        </article>
+        <article class="panel span-5">
+          <div class="panel-head">
+            <h3>核心指标覆盖</h3>
+            <p>每月有记录的天数</p>
+          </div>
+          <div id="overview-coverage" class="chart"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="tab-activity" class="tab-panel">
+      <div class="section-head">
+        <h2>活动、能量与训练</h2>
+        <p>步数、距离、爬楼与主动消耗按日聚合；训练来自七类运动记录。</p>
+      </div>
+      <div class="chart-grid">
+        <article class="panel span-12">
+          <div class="panel-head">
+            <h3>每日步数与 7 日移动平均</h3>
+            <p>灰色区域代表设备链之间的数据断档</p>
+          </div>
+          <div id="activity-steps" class="chart tall"></div>
+        </article>
+        <article class="panel span-7">
+          <div class="panel-head">
+            <h3>活动日历</h3>
+            <p>最近 365 天日步数</p>
+          </div>
+          <div id="activity-calendar" class="chart tall"></div>
+        </article>
+        <article class="panel span-5">
+          <div class="panel-head">
+            <h3>星期节奏</h3>
+            <p>各星期平均步数与主动消耗</p>
+          </div>
+          <div id="activity-weekday" class="chart tall"></div>
+        </article>
+        <article class="panel span-6">
+          <div class="panel-head">
+            <h3>能量平衡</h3>
+            <p>主动消耗与基础代谢的月均值</p>
+          </div>
+          <div id="activity-energy" class="chart"></div>
+        </article>
+        <article class="panel span-6">
+          <div class="panel-head">
+            <h3>小时级活动与心率</h3>
+            <p>覆盖各来源有效记录</p>
+          </div>
+          <div id="activity-hourly" class="chart"></div>
+        </article>
+        <article class="panel span-12">
+          <div class="panel-head">
+            <h3>每月训练时长</h3>
+            <p>按运动类型堆叠</p>
+          </div>
+          <div id="activity-workout-monthly" class="chart tall"></div>
+        </article>
+        <article class="panel span-12">
+          <div class="panel-head">
+            <h3>训练档案</h3>
+            <p>当前时间范围内按类型汇总</p>
+          </div>
+          <div class="data-table-wrap" id="workout-summary"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="tab-sleep" class="tab-panel">
+      <div class="section-head">
+        <h2>睡眠、恢复与节律</h2>
+        <p>主睡眠过滤掉午睡、短片段和异常超长记录；Apple Watch 提供深睡、REM 与核心睡眠分期。</p>
+      </div>
+      <div class="chart-grid">
+        <article class="panel span-8">
+          <div class="panel-head">
+            <h3>主睡眠时长</h3>
+            <p>月均主睡眠小时数</p>
+          </div>
+          <div id="sleep-duration" class="chart"></div>
+        </article>
+        <article class="panel span-4">
+          <div class="panel-head">
+            <h3>睡眠分期</h3>
+            <p>有分期数据的月份</p>
+          </div>
+          <div id="sleep-stages" class="chart"></div>
+        </article>
+        <article class="panel span-12">
+          <div class="panel-head">
+            <h3>入睡、觉醒与睡眠中点</h3>
+            <p>仅主睡眠；时间已转换为本地时区</p>
+          </div>
+          <div id="sleep-timeline" class="chart tall"></div>
+        </article>
+        <article class="panel span-7">
+          <div class="panel-head">
+            <h3>夜间腕温</h3>
+            <p>Apple Watch 睡眠腕温记录</p>
+          </div>
+          <div id="sleep-wrist" class="chart"></div>
+        </article>
+        <article class="panel span-5">
+          <div class="panel-head">
+            <h3>节律规律性</h3>
+            <p>近 365 天主睡眠统计</p>
+          </div>
+          <div class="mini-grid">
+            <div class="chart short" id="sleep-reg-duration"></div>
+            <div class="chart short" id="sleep-reg-midpoint"></div>
+            <div class="chart short" id="sleep-reg-jetlag"></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="tab-heart" class="tab-panel">
+      <div class="section-head">
+        <h2>心率、呼吸与代谢</h2>
+        <p>日常心率来自分钟级记录；静息心率、HRV、血氧、呼吸频率和 VO₂ max 使用日均值。</p>
+      </div>
+      <div class="chart-grid">
+        <article class="panel span-12">
+          <div class="panel-head">
+            <h3>每日心率区间</h3>
+            <p>实线为日均心率，浅色区域为最低到最高</p>
+          </div>
+          <div id="heart-band" class="chart tall"></div>
+        </article>
+        <article class="panel span-5">
+          <div class="panel-head">
+            <h3>心率分布</h3>
+            <p>已按设备来源去重</p>
+          </div>
+          <div id="heart-histogram" class="chart"></div>
+        </article>
+        <article class="panel span-7">
+          <div class="panel-head">
+            <h3>小时平均心率</h3>
+            <p>所有有效日期汇总</p>
+          </div>
+          <div id="heart-hourly" class="chart"></div>
+        </article>
+        <article class="panel span-7">
+          <div class="panel-head">
+            <h3>静息心率与 HRV</h3>
+            <p>左轴 bpm，右轴 ms</p>
+          </div>
+          <div id="heart-recovery" class="chart tall"></div>
+        </article>
+        <article class="panel span-5">
+          <div class="panel-head">
+            <h3>血氧与呼吸频率</h3>
+            <p>月均趋势</p>
+          </div>
+          <div id="heart-oxygen" class="chart tall"></div>
+        </article>
+        <article class="panel span-6">
+          <div class="panel-head">
+            <h3>VO₂ max 与恢复心率</h3>
+            <p>离散测量点</p>
+          </div>
+          <div id="heart-vo2" class="chart"></div>
+        </article>
+        <article class="panel span-6">
+          <div class="panel-head">
+            <h3>高心率提醒</h3>
+            <p>Apple Watch 事件记录</p>
+          </div>
+          <div class="data-table-wrap" id="heart-events"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="tab-mobility" class="tab-panel">
+      <div class="section-head">
+        <h2>步态、平衡与体能</h2>
+        <p>iPhone 与 Apple Watch 的步行速度、步长、不对称、双足支撑、稳定性和台阶速度。</p>
+      </div>
+      <div class="chart-grid">
+        <article class="panel span-7">
+          <div class="panel-head">
+            <h3>步行速度与步长</h3>
+            <p>月均值；左轴 km/h，右轴 cm</p>
+          </div>
+          <div id="mobility-main" class="chart"></div>
+        </article>
+        <article class="panel span-5">
+          <div class="panel-head">
+            <h3>速度与步长分布</h3>
+            <p>全部有效样本</p>
+          </div>
+          <div id="mobility-hist" class="chart"></div>
+        </article>
+        <article class="panel span-7">
+          <div class="panel-head">
+            <h3>步态对称与支撑相</h3>
+            <p>左轴不对称，右轴双足支撑相</p>
+          </div>
+          <div id="mobility-gait" class="chart"></div>
+        </article>
+        <article class="panel span-5">
+          <div class="panel-head">
+            <h3>步行稳定性</h3>
+            <p>分数越接近 1 表示越稳定</p>
+          </div>
+          <div id="mobility-steadiness" class="chart"></div>
+        </article>
+        <article class="panel span-6">
+          <div class="panel-head">
+            <h3>六分钟步行测试</h3>
+            <p>单次测量距离</p>
+          </div>
+          <div id="mobility-six-minute" class="chart"></div>
+        </article>
+        <article class="panel span-6">
+          <div class="panel-head">
+            <h3>上下楼速度</h3>
+            <p>Apple Watch 日均值</p>
+          </div>
+          <div id="mobility-stairs" class="chart"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="tab-habits" class="tab-panel">
+      <div class="section-head">
+        <h2>身体、习惯与环境</h2>
+        <p>体重、血压、正念、洗手、噪声暴露与历史 Nike Fuel 数据。</p>
+      </div>
+      <div class="chart-grid">
+        <article class="panel span-7">
+          <div class="panel-head">
+            <h3>体重与 BMI</h3>
+            <p>测量稀疏，按来源标记</p>
+          </div>
+          <div id="habits-body" class="chart"></div>
+        </article>
+        <article class="panel span-5">
+          <div class="panel-head">
+            <h3>历史血压</h3>
+            <p>按数据文件中的设备来源显示</p>
+          </div>
+          <div id="habits-blood-pressure" class="chart"></div>
+        </article>
+        <article class="panel span-6">
+          <div class="panel-head">
+            <h3>正念累计时长</h3>
+            <p>按数据文件中的来源汇总</p>
+          </div>
+          <div id="habits-mindfulness" class="chart"></div>
+        </article>
+        <article class="panel span-6">
+          <div class="panel-head">
+            <h3>洗手事件</h3>
+            <p>Apple Watch 自动识别</p>
+          </div>
+          <div id="habits-handwash" class="chart"></div>
+        </article>
+        <article class="panel span-6">
+          <div class="panel-head">
+            <h3>耳机噪声暴露</h3>
+            <p>正向日平均声压级分布</p>
+          </div>
+          <div id="habits-headphone" class="chart"></div>
+        </article>
+        <article class="panel span-6">
+          <div class="panel-head">
+            <h3>环境噪声暴露</h3>
+            <p>Apple Watch 日平均声压级</p>
+          </div>
+          <div id="habits-environment" class="chart"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="tab-quality" class="tab-panel">
+      <div class="section-head">
+        <h2>覆盖、来源与断档</h2>
+        <p>跨设备数据会保留设备链上下文，不把不同来源直接拼成一条“连续曲线”。</p>
+      </div>
+      <div class="chart-grid">
+        <article class="panel span-12">
+          <div class="panel-head">
+            <h3>每月有记录天数</h3>
+            <p>颜色越深表示该指标在该月覆盖越完整</p>
+          </div>
+          <div id="quality-coverage" class="chart tall"></div>
+        </article>
+        <article class="panel span-7">
+          <div class="panel-head">
+            <h3>来源贡献</h3>
+            <p>去重后每日记录由哪个来源提供</p>
+          </div>
+          <div id="quality-source" class="chart tall"></div>
+        </article>
+        <article class="panel span-5">
+          <div class="panel-head">
+            <h3>主要断档</h3>
+            <p>跨设备切换造成的历史空白</p>
+          </div>
+          <div class="data-table-wrap" id="quality-gaps"></div>
+        </article>
+        <article class="panel span-12">
+          <div class="panel-head">
+            <h3>指标词典</h3>
+            <p>本报告实际采用的去重后覆盖情况</p>
+          </div>
+          <div class="data-table-wrap" id="quality-metrics"></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="app-footer" hidden>
+    <strong>方法与边界</strong>
+    <p id="footer-note">
+      数据来自本地 Apple Health CSV 导出。所有时间已转换为浏览器本地时区；
+      同日多来源数据按可信度顺序去重；睡眠趋势仅保留主睡眠。
+      本报告为个人数据观察，不构成医疗建议。
+    </p>
+  </footer>
+
+  <script src="vendor/echarts.min.js"></script>
+  <script src="vendor/jszip.min.js"></script>
+  <script type="module">
+    import { analyzeZipFile, localTimeZone } from "./src/loader.js";
+
+    let D = null;
+    let today = null;
+    const C = {
+      ink: "#172527",
+      muted: "#697475",
+      line: "#d8d3c5",
+      teal: "#24786f",
+      tealDeep: "#164d49",
+      coral: "#d8654d",
+      amber: "#c9952f",
+      blue: "#507c9f",
+      plum: "#8e6f91",
+      green: "#4e8a64",
+      paper: "#f3f0e7"
+    };
+    const PALETTE = [C.teal, C.coral, C.amber, C.blue, C.plum, C.green, "#76a49c", "#a56e52"];
+    const charts = new Map();
+    let analysisWorker = null;
+    let rangeDays = 90;
+    let activeTab = "overview";
+
+    const metricNames = {
+      steps: "步数",
+      active_energy: "主动能量",
+      basal_energy: "基础代谢",
+      distance_wr: "步行/跑步距离",
+      distance_cycling: "骑行距离",
+      flights: "爬楼层数",
+      heart_rate: "心率",
+      resting_hr: "静息心率",
+      hrv: "HRV",
+      respiratory_rate: "呼吸频率",
+      oxygen: "血氧",
+      vo2max: "VO₂ max",
+      walking_speed: "步行速度",
+      step_length: "步长",
+      asymmetry: "步态不对称",
+      double_support: "双足支撑",
+      walking_steadiness: "步行稳定性",
+      sleep: "睡眠",
+      wrist_temp: "腕温",
+      headphone_db: "耳机噪声",
+      environmental_db: "环境噪声"
+    };
+
+    const workoutNames = {
+      Badminton: "羽毛球",
+      Walking: "步行",
+      Cycling: "骑行",
+      Running: "跑步",
+      FunctionalStrengthTraining: "功能性力量",
+      MixedMetabolicCardioTraining: "混合有氧",
+      HighIntensityIntervalTraining: "HIIT"
+    };
+
+    const fmt = {
+      num: v => v == null ? "—" : Number(v).toLocaleString("zh-CN", { maximumFractionDigits: 1 }),
+      int: v => v == null ? "—" : Math.round(Number(v)).toLocaleString("zh-CN"),
+      pct: v => v == null ? "—" : `${(Number(v) * 100).toFixed(1)}%`,
+      clock: minutes => {
+        if (minutes == null) return "—";
+        const m = ((Math.round(minutes) % 1440) + 1440) % 1440;
+        return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+      },
+      month: value => value ? `${value.slice(0, 4)}.${value.slice(5, 7)}` : value
+    };
+
+    function chart(id, option) {
+      if (!charts.has(id)) {
+        charts.set(id, echarts.init(document.getElementById(id), null, { renderer: "canvas" }));
+      }
+      charts.get(id).setOption(option, true);
+      return charts.get(id);
+    }
+
+    function baseGrid(extra = {}) {
+      return Object.assign({
+        left: 48,
+        right: 24,
+        top: 28,
+        bottom: 42,
+        containLabel: true
+      }, extra);
+    }
+
+    function axisStyle(color = C.muted) {
+      return {
+        axisLine: { lineStyle: { color: C.line } },
+        axisTick: { show: false },
+        axisLabel: { color, fontSize: 11 },
+        splitLine: { lineStyle: { color: "rgba(23,37,39,0.08)", type: "dashed" } }
+      };
+    }
+
+    function tooltipStyle() {
+      return {
+        trigger: "axis",
+        backgroundColor: "rgba(23,37,39,0.94)",
+        borderWidth: 0,
+        textStyle: { color: "#fff", fontSize: 12 },
+        padding: [8, 10],
+        confine: true
+      };
+    }
+
+    function addDays(dateText, days) {
+      const d = new Date(`${dateText}T00:00:00`);
+      d.setDate(d.getDate() + days);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function rangeStart() {
+      return rangeDays === 0 ? D.daily[0].date : addDays(today, -(rangeDays - 1));
+    }
+
+    function filteredDaily(mainSleep = false) {
+      const start = rangeStart();
+      return D.daily.filter(item => {
+        if (item.date < start || item.date > today) return false;
+        if (mainSleep && !item.is_main_sleep) return false;
+        return true;
+      });
+    }
+
+    function filteredMonthly() {
+      const start = rangeStart().slice(0, 7);
+      const end = today.slice(0, 7);
+      return D.monthly.filter(item => item.date >= start && item.date <= end);
+    }
+
+    function filteredWorkouts() {
+      const start = rangeStart();
+      return D.workouts.filter(item => item.date >= start && item.date <= today);
+    }
+
+    function filteredPoints(key) {
+      const start = rangeStart();
+      return (D.points[key] || []).filter(item => item.date >= start && item.date <= today);
+    }
+
+    function seriesFrom(records, field, mainSleep = false) {
+      return records
+        .filter(item => item[field] != null && (!mainSleep || item.is_main_sleep))
+        .map(item => [item.date, item[field]]);
+    }
+
+    function average(values) {
+      if (!values.length) return 0;
+      return values.reduce((a, b) => a + b, 0) / values.length;
+    }
+
+    function median(values) {
+      if (!values.length) return 0;
+      const sorted = [...values].sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+    }
+
+    function formatDelta(field, value, digits = 1) {
+      if (!value && value !== 0) return "无前段数据";
+      const good = field === "resting_hr" || field === "night_hr" ? value < 0 : value > 0;
+      const arrow = value === 0 ? "" : (value > 0 ? "↑ " : "↓ ");
+      return `${arrow}${Math.abs(value).toFixed(digits)}${good ? "" : ""}`;
+    }
+
+    function heroKpis() {
+      const daily = filteredDaily();
+      const sleep = daily.filter(item => item.is_main_sleep);
+      const workouts = filteredWorkouts();
+      const weeks = Math.max(1, rangeDays === 0 ? (D.daily.length / 7) : rangeDays / 7);
+      const values = {
+        steps: average(daily.map(item => item.steps).filter(v => v != null)),
+        sleep: average(sleep.map(item => item.asleep_hours).filter(v => v != null)),
+        resting: average(daily.map(item => item.resting_hr).filter(v => v != null)),
+        hrv: average(daily.map(item => item.hrv).filter(v => v != null)),
+        workout: workouts.reduce((sum, item) => sum + item.duration_min, 0) / weeks,
+        energy: average(daily.map(item => item.active_energy).filter(v => v != null))
+      };
+      const cards = [
+        ["步数", fmt.int(values.steps), "步/天", "steps"],
+        ["主睡眠", values.sleep.toFixed(1), "小时/夜", "sleep"],
+        ["静息心率", fmt.int(values.resting), "bpm", "resting_hr"],
+        ["HRV", fmt.int(values.hrv), "ms", "hrv"],
+        ["每周训练", values.workout.toFixed(0), "分钟", "workout_min"],
+        ["主动消耗", fmt.int(values.energy), "kcal/天", "active_energy"]
+      ];
+      document.getElementById("hero-kpis").innerHTML = cards.map(([label, value, unit, key]) => {
+        const deltaKey = key === "sleep" ? "asleep_hours" : (key === "workout_min" ? "workout_weekly_min" : key);
+        const delta = D.deltas[deltaKey];
+        const deltaText = rangeDays === 90 && delta ? formatDelta(key, delta.change, key === "sleep" ? 2 : 1) : "";
+        return `<div class="hero-stat">
+          <span class="label">${label}</span>
+          <span><span class="value">${value}</span><span class="unit">${unit}</span></span>
+          ${deltaText ? `<span class="delta">较前 90 天 ${deltaText}</span>` : ""}
+        </div>`;
+      }).join("");
+    }
+
+    function renderMeta() {
+      const first = D.meta.first_date || "—";
+      const last = D.meta.last_date || "—";
+      const spanDays = D.meta.first_date && D.meta.last_date
+        ? Math.round((new Date(`${D.meta.last_date}T00:00:00`) - new Date(`${D.meta.first_date}T00:00:00`)) / 86_400_000) + 1
+        : 0;
+      const spanText = spanDays >= 730
+        ? `${Math.round(spanDays / 365)} 年`
+        : spanDays >= 60
+          ? `${Math.round(spanDays / 30)} 个月`
+          : `${Math.max(1, spanDays)} 天`;
+      const sources = [...new Set(Object.values(D.selected_source_days).flatMap(Object.keys))];
+      document.getElementById("brand-subtitle").textContent =
+        `${first} — ${last} · ${D.meta.file_count} 个 CSV`;
+      document.getElementById("hero-title").textContent =
+        `把 ${spanText}身体数据，变成一张可读的图谱`;
+      document.getElementById("hero-records").textContent = `${D.meta.row_count.toLocaleString("zh-CN")} 条记录`;
+      document.getElementById("hero-files").textContent = `${D.meta.file_count} 个数据文件`;
+      document.getElementById("hero-source").textContent = sources.length
+        ? sources.join(" · ")
+        : "本地数据";
+      document.getElementById("hero-summary").textContent =
+        `从 ${first} 到 ${last}，按活动、睡眠、心率、步态、身体与环境七个视角观察数据。${sources.length ? `数据来源包括 ${sources.join("、")}。` : ""}`;
+    }
+
+    function renderInsights() {
+      const grid = document.getElementById("insight-grid");
+      const shown = D.insights.slice(0, 6);
+      grid.innerHTML = shown.map(item => `
+        <article class="insight" data-level="${item.level}">
+          <h3>${item.title}</h3>
+          <p>${item.body}</p>
+        </article>
+      `).join("");
+    }
+
+    function renderOverview() {
+      const monthly = filteredMonthly();
+      const workouts = filteredWorkouts();
+
+      chart("overview-steps", {
+        color: [C.teal],
+        grid: baseGrid(),
+        tooltip: tooltipStyle(),
+        xAxis: { type: "category", data: monthly.map(item => item.date), ...axisStyle() },
+        yAxis: { type: "value", ...axisStyle() },
+        dataZoom: monthly.length > 30 ? [{ type: "inside" }, { type: "slider", height: 15, bottom: 5 }] : [],
+        series: [{
+          name: "日均步数",
+          type: "bar",
+          data: monthly.map(item => item.steps_mean),
+          barMaxWidth: 20,
+          itemStyle: { color: C.teal, borderRadius: [3, 3, 0, 0] }
+        }]
+      });
+
+      const typeMap = new Map();
+      for (const item of workouts) {
+        typeMap.set(item.type, (typeMap.get(item.type) || 0) + item.duration_min);
+      }
+      const typeData = [...typeMap.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .map(([type, minutes]) => ({ name: workoutNames[type] || type, value: Math.round(minutes) }));
+      chart("overview-workouts", {
+        color: PALETTE,
+        tooltip: { trigger: "item", ...tooltipStyle(), formatter: p => `${p.name}<br><strong>${Math.round(p.value)} 分钟</strong>` },
+        legend: { bottom: 0, textStyle: { color: C.muted, fontSize: 11 } },
+        series: [{
+          type: "pie",
+          radius: ["36%", "67%"],
+          center: ["50%", "43%"],
+          avoidLabelOverlap: true,
+          itemStyle: { borderColor: "#fff", borderWidth: 2 },
+          label: { color: C.ink, fontSize: 11, formatter: "{b}" },
+          data: typeData
+        }]
+      });
+
+      chart("overview-sleep", {
+        color: [C.plum, C.coral],
+        grid: baseGrid({ right: 54 }),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 11 } },
+        xAxis: { type: "category", data: monthly.map(item => item.date), ...axisStyle() },
+        yAxis: [
+          { type: "value", name: "小时", ...axisStyle() },
+          { type: "value", name: "°C", min: 35.5, max: 36.8, ...axisStyle() }
+        ],
+        series: [
+          { name: "主睡眠", type: "line", smooth: 0.25, data: monthly.map(item => item.asleep_hours_mean), symbolSize: 5, lineStyle: { width: 2.5 } },
+          { name: "夜间腕温", type: "line", yAxisIndex: 1, smooth: 0.3, data: monthly.map(item => item.wrist_temp_mean), symbolSize: 5, lineStyle: { width: 1.5, type: "dashed" } }
+        ]
+      });
+
+      const metrics = ["steps", "active_energy", "heart_rate", "sleep", "hrv", "walking_speed"];
+      chart("overview-coverage", {
+        color: PALETTE,
+        grid: baseGrid(),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 10 } },
+        xAxis: { type: "category", data: D.coverage_monthly.map(item => item.date), ...axisStyle() },
+        yAxis: { type: "value", max: 31, ...axisStyle() },
+        series: metrics.map((metric, index) => ({
+          name: metricNames[metric],
+          type: "bar",
+          stack: "total",
+          barMaxWidth: 13,
+          itemStyle: { color: PALETTE[index] },
+          data: D.coverage_monthly.map(item => item[metric] || 0)
+        }))
+      });
+    }
+
+    function renderActivity() {
+      const daily = filteredDaily();
+      const monthly = filteredMonthly();
+      const workouts = filteredWorkouts();
+      const steps = seriesFrom(daily, "steps");
+      const moving = steps.map((_, index) => {
+        const start = Math.max(0, index - 6);
+        return [steps[index][0], average(steps.slice(start, index + 1).map(item => item[1]))];
+      });
+
+      chart("activity-steps", {
+        color: [C.blue, C.coral],
+        grid: baseGrid({ bottom: daily.length > 160 ? 62 : 42 }),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 11 } },
+        xAxis: { type: "category", data: steps.map(item => item[0]), ...axisStyle() },
+        yAxis: { type: "value", ...axisStyle() },
+        dataZoom: daily.length > 160 ? [{ type: "inside" }, { type: "slider", height: 15, bottom: 6 }] : [],
+        series: [
+          { name: "每日步数", type: "line", data: steps, symbol: "none", lineStyle: { width: 1.3, opacity: 0.75 }, areaStyle: { opacity: 0.05 } },
+          { name: "7 日平均", type: "line", data: moving, symbol: "none", lineStyle: { width: 2.6 }, smooth: 0.2 }
+        ]
+      });
+
+      const heatData = [];
+      let heatMax = 0;
+      const calStart = addDays(today, -364);
+      for (const item of daily) {
+        if (item.date < calStart || item.steps == null) continue;
+        heatData.push([item.date, item.steps]);
+        heatMax = Math.max(heatMax, item.steps);
+      }
+      chart("activity-calendar", {
+        visualMap: {
+          min: 0,
+          max: Math.max(10000, Math.min(25000, heatMax)),
+          orient: "horizontal",
+          left: "center",
+          bottom: 0,
+          inRange: { color: ["#e9e5da", C.blue, C.tealDeep] },
+          textStyle: { color: C.muted, fontSize: 10 }
+        },
+        calendar: {
+          top: 55,
+          left: 38,
+          right: 10,
+          bottom: 55,
+          range: [calStart, today],
+          cellSize: ["auto", 16],
+          splitLine: { show: true, lineStyle: { color: C.line } },
+          itemStyle: { borderWidth: 2, borderColor: C.paper },
+          yearLabel: { show: false },
+          monthLabel: { color: C.muted, fontSize: 10 },
+          dayLabel: { color: C.muted, fontSize: 10, nameMap: ["日", "一", "二", "三", "四", "五", "六"] }
+        },
+        tooltip: {
+          formatter: p => `${p.value[0]}<br><strong>${fmt.int(p.value[1])} 步</strong>`,
+          backgroundColor: "rgba(23,37,39,0.94)",
+          borderWidth: 0,
+          textStyle: { color: "#fff", fontSize: 12 }
+        },
+        series: [{ type: "heatmap", coordinateSystem: "calendar", data: heatData }]
+      });
+
+      const weekLabels = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+      chart("activity-weekday", {
+        color: [C.teal, C.coral],
+        grid: baseGrid({ right: 52 }),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 10 } },
+        xAxis: { type: "category", data: weekLabels, ...axisStyle() },
+        yAxis: [
+          { type: "value", name: "步", ...axisStyle() },
+          { type: "value", name: "kcal", ...axisStyle() }
+        ],
+        series: [
+          { name: "步数", type: "bar", data: D.weekday_profile.steps, barMaxWidth: 24, itemStyle: { borderRadius: [3, 3, 0, 0] } },
+          { name: "主动消耗", type: "line", yAxisIndex: 1, data: D.weekday_profile.active_energy, symbolSize: 6, lineStyle: { width: 2 } }
+        ]
+      });
+
+      chart("activity-energy", {
+        color: [C.coral, C.amber],
+        grid: baseGrid(),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 11 } },
+        xAxis: { type: "category", data: monthly.map(item => item.date), ...axisStyle() },
+        yAxis: { type: "value", ...axisStyle() },
+        dataZoom: monthly.length > 30 ? [{ type: "inside" }, { type: "slider", height: 15, bottom: 5 }] : [],
+        series: [
+          { name: "主动消耗", type: "bar", stack: "energy", data: monthly.map(item => item.active_energy_mean), barMaxWidth: 22, itemStyle: { color: C.coral } },
+          { name: "基础代谢", type: "bar", stack: "energy", data: monthly.map(item => item.basal_energy_mean), barMaxWidth: 22, itemStyle: { color: C.amber } }
+        ]
+      });
+
+      const hours = [...Array(24).keys()].map(h => `${String(h).padStart(2, "0")}:00`);
+      chart("activity-hourly", {
+        color: [C.teal, C.coral, C.blue],
+        grid: baseGrid({ right: 52 }),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 10 } },
+        xAxis: { type: "category", data: hours, ...axisStyle() },
+        yAxis: [
+          { type: "value", name: "步/kcal", ...axisStyle() },
+          { type: "value", name: "bpm", min: 40, max: 110, ...axisStyle() }
+        ],
+        series: [
+          { name: "步数", type: "bar", data: D.hour_profile.steps.mean, barMaxWidth: 10, itemStyle: { color: C.teal } },
+          { name: "主动消耗", type: "bar", data: D.hour_profile.active_energy.mean, barMaxWidth: 10, itemStyle: { color: C.coral } },
+          { name: "心率", type: "line", yAxisIndex: 1, data: D.hour_profile.heart_rate.mean, symbol: "none", lineStyle: { width: 2.4 } }
+        ]
+      });
+
+      const workoutMonths = filteredMonthly().map(item => item.date);
+      const workoutTypes = [...new Set(D.workouts.map(item => item.type))];
+      const workoutSeries = [];
+      for (const type of workoutTypes) {
+        workoutSeries.push({
+          name: workoutNames[type] || type,
+          type: "bar",
+          stack: "total",
+          barMaxWidth: 26,
+          data: workoutMonths.map(month => {
+            const row = D.workout_monthly.find(item => item.date === month);
+            return row?.types?.[type]?.min || 0;
+          })
+        });
+      }
+      chart("activity-workout-monthly", {
+        color: PALETTE,
+        grid: baseGrid({ bottom: 48 }),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 10 } },
+        xAxis: { type: "category", data: workoutMonths, ...axisStyle() },
+        yAxis: { type: "value", ...axisStyle() },
+        dataZoom: workoutMonths.length > 24 ? [{ type: "inside" }, { type: "slider", height: 15, bottom: 5 }] : [],
+        series: workoutSeries
+      });
+
+      const summary = new Map();
+      for (const item of workouts) {
+        const row = summary.get(item.type) || { count: 0, minutes: 0, km: 0, kcal: 0 };
+        row.count += 1;
+        row.minutes += item.duration_min;
+        row.km += item.distance_km;
+        row.kcal += item.energy;
+        summary.set(item.type, row);
+      }
+      document.getElementById("workout-summary").innerHTML = `
+        <table class="data-table">
+          <thead><tr><th>运动类型</th><th>次数</th><th>总时长</th><th>移动距离</th><th>消耗</th></tr></thead>
+          <tbody>
+            ${[...summary.entries()].sort((a, b) => b[1].minutes - a[1].minutes).map(([type, row]) => `
+              <tr>
+                <td>${workoutNames[type] || type}</td>
+                <td class="num">${row.count}</td>
+                <td class="num">${(row.minutes / 60).toFixed(1)} 小时</td>
+                <td class="num">${row.km.toFixed(1)} km</td>
+                <td class="num">${fmt.int(row.kcal)} kcal</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>`;
+    }
+
+    function renderSleep() {
+      const monthly = filteredMonthly();
+      const daily = filteredDaily().filter(item => item.is_main_sleep);
+      const stages = D.sleep_stage_monthly.filter(item => {
+        const start = rangeStart().slice(0, 7);
+        return item.date >= start && item.date <= today.slice(0, 7);
+      });
+
+      chart("sleep-duration", {
+        color: [C.plum],
+        grid: baseGrid(),
+        tooltip: tooltipStyle(),
+        xAxis: { type: "category", data: monthly.map(item => item.date), ...axisStyle() },
+        yAxis: { type: "value", min: 5, max: 10, ...axisStyle() },
+        dataZoom: monthly.length > 30 ? [{ type: "inside" }, { type: "slider", height: 15, bottom: 5 }] : [],
+        series: [{
+          name: "主睡眠",
+          type: "line",
+          smooth: 0.25,
+          data: monthly.map(item => item.asleep_hours_mean),
+          symbolSize: 5,
+          lineStyle: { width: 2.5 },
+          areaStyle: { opacity: 0.11 },
+          markLine: {
+            silent: true,
+            lineStyle: { color: C.coral, type: "dashed" },
+            label: { color: C.coral, fontSize: 10 },
+            data: [{ yAxis: 7, name: "7 小时" }]
+          }
+        }]
+      });
+
+      chart("sleep-stages", {
+        color: [C.blue, C.teal, C.plum, C.coral],
+        grid: baseGrid(),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 10 } },
+        xAxis: { type: "category", data: stages.map(item => item.date), ...axisStyle() },
+        yAxis: { type: "value", name: "分钟", ...axisStyle() },
+        series: [
+          ["核心睡眠", "core", C.blue],
+          ["深睡", "deep", C.teal],
+          ["REM", "rem", C.plum],
+          ["清醒", "awake", C.coral]
+        ].map(([name, key, color]) => ({
+          name,
+          type: "bar",
+          stack: "stage",
+          barMaxWidth: 25,
+          itemStyle: { color },
+          data: stages.map(item => item[key] || 0)
+        }))
+      });
+
+      const timeline = daily.map(item => [item.date, item.bedtime_min, item.wake_min, item.midpoint_min]);
+      chart("sleep-timeline", {
+        color: [C.blue, C.coral, C.teal],
+        grid: baseGrid({ bottom: daily.length > 160 ? 62 : 42 }),
+        tooltip: Object.assign(tooltipStyle(), {
+          formatter: params => {
+            const date = params[0].axisValue;
+            const row = daily.find(item => item.date === date);
+            return `${date}<br>入睡 ${fmt.clock(row.bedtime_min)}<br>觉醒 ${fmt.clock(row.wake_min)}<br>中点 ${fmt.clock(row.midpoint_min)}`;
+          }
+        }),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 11 } },
+        xAxis: { type: "category", data: timeline.map(item => item[0]), ...axisStyle() },
+        yAxis: {
+          type: "value",
+          min: 0,
+          max: 1440,
+          interval: 180,
+          inverse: true,
+          axisLabel: { color: C.muted, fontSize: 11, formatter: v => fmt.clock(v) },
+          axisLine: { lineStyle: { color: C.line } },
+          axisTick: { show: false },
+          splitLine: { lineStyle: { color: "rgba(23,37,39,0.08)", type: "dashed" } }
+        },
+        dataZoom: daily.length > 160 ? [{ type: "inside" }, { type: "slider", height: 15, bottom: 6 }] : [],
+        series: [
+          { name: "入睡", type: "line", data: timeline.map(item => [item[0], item[1]]), symbolSize: 4, lineStyle: { width: 2 } },
+          { name: "觉醒", type: "line", data: timeline.map(item => [item[0], item[2]]), symbolSize: 4, lineStyle: { width: 2 } },
+          { name: "睡眠中点", type: "line", data: timeline.map(item => [item[0], item[3]]), symbolSize: 5, lineStyle: { width: 2.6 } }
+        ]
+      });
+
+      chart("sleep-wrist", {
+        color: [C.coral],
+        grid: baseGrid(),
+        tooltip: tooltipStyle(),
+        xAxis: { type: "time", ...axisStyle() },
+        yAxis: { type: "value", name: "°C", min: 35.4, max: 36.8, ...axisStyle() },
+        dataZoom: daily.length > 160 ? [{ type: "inside" }, { type: "slider", height: 15, bottom: 5 }] : [],
+        series: [{
+          name: "夜间腕温",
+          type: "line",
+          data: daily.filter(item => item.wrist_temp != null).map(item => [item.date, item.wrist_temp]),
+          symbolSize: 5,
+          smooth: 0.25,
+          lineStyle: { width: 2 }
+        }]
+      });
+
+      const reg = D.regularity;
+      const gaugeOption = (value, max, name, unit, color) => ({
+        series: [{
+          type: "gauge",
+          min: 0,
+          max,
+          startAngle: 210,
+          endAngle: -30,
+          radius: "88%",
+          progress: { show: true, width: 9, itemStyle: { color } },
+          axisLine: { lineStyle: { width: 9, color: [[1, "rgba(23,37,39,0.08)"]] } },
+          axisTick: { show: false },
+          splitLine: { show: false },
+          axisLabel: { distance: -25, color: C.muted, fontSize: 9 },
+          pointer: { show: false },
+          anchor: { show: false },
+          detail: { valueAnimation: true, offsetCenter: [0, "62%"], color: C.ink, fontSize: 21, fontWeight: 700, formatter: v => `${v.toFixed(1)}${unit}` },
+          title: { offsetCenter: [0, "88%"], color: C.muted, fontSize: 10 },
+          data: [{ value, name }]
+        }]
+      });
+      chart("sleep-reg-duration", gaugeOption(reg.duration_sd, 2, "时长波动", "h", C.plum));
+      chart("sleep-reg-midpoint", gaugeOption(reg.midpoint_sd, 60, "中点波动", "min", C.blue));
+      chart("sleep-reg-jetlag", gaugeOption(reg.social_jetlag_min, 60, "社会时差", "min", C.amber));
+    }
+
+    function renderHeart() {
+      const daily = filteredDaily();
+      const monthly = filteredMonthly();
+      const bandData = daily.filter(item => item.heart_rate != null).map(item => [item.date, item.heart_rate_min, item.heart_rate_max - item.heart_rate_min, item.heart_rate]);
+
+      chart("heart-band", {
+        color: [C.coral, C.teal],
+        grid: baseGrid({ bottom: daily.length > 160 ? 62 : 42 }),
+        tooltip: Object.assign(tooltipStyle(), {
+          formatter: params => {
+            const row = daily.find(item => item.date === params[0].axisValue);
+            return `${row.date}<br>平均 ${fmt.int(row.heart_rate)} bpm<br>最低 ${fmt.int(row.heart_rate_min)} bpm<br>最高 ${fmt.int(row.heart_rate_max)} bpm`;
+          }
+        }),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 11 } },
+        xAxis: { type: "category", data: bandData.map(item => item[0]), ...axisStyle() },
+        yAxis: { type: "value", min: 40, max: 130, ...axisStyle() },
+        dataZoom: daily.length > 160 ? [{ type: "inside" }, { type: "slider", height: 15, bottom: 6 }] : [],
+        series: [
+          { name: "最低", type: "line", stack: "band", symbol: "none", lineStyle: { opacity: 0 }, data: bandData.map(item => item[1]) },
+          { name: "心率区间", type: "line", stack: "band", symbol: "none", lineStyle: { opacity: 0 }, areaStyle: { color: "rgba(216,101,77,0.12)" }, data: bandData.map(item => item[2]) },
+          { name: "日均心率", type: "line", symbol: "none", smooth: 0.15, lineStyle: { width: 2.4 }, data: bandData.map(item => item[3]) }
+        ]
+      });
+
+      chart("heart-histogram", {
+        color: [C.coral],
+        grid: baseGrid(),
+        tooltip: Object.assign(tooltipStyle(), {
+          formatter: p => `${p.data.label.toFixed(0)} bpm<br><strong>${fmt.int(p.data.count)} 条记录</strong>`
+        }),
+        xAxis: { type: "category", data: D.histograms.heart_rate.map(item => item.label.toFixed(0)), ...axisStyle() },
+        yAxis: { type: "value", ...axisStyle() },
+        series: [{ type: "bar", data: D.histograms.heart_rate.map(item => item.count), barMaxWidth: 8, itemStyle: { color: C.coral } }]
+      });
+
+      chart("heart-hourly", {
+        color: [C.teal],
+        grid: baseGrid(),
+        tooltip: tooltipStyle(),
+        xAxis: { type: "category", data: [...Array(24).keys()].map(h => `${String(h).padStart(2, "0")}:00`), ...axisStyle() },
+        yAxis: { type: "value", min: 45, max: 110, ...axisStyle() },
+        series: [{ name: "平均心率", type: "line", data: D.hour_profile.heart_rate.mean, symbol: "circle", symbolSize: 5, lineStyle: { width: 2.4 }, areaStyle: { opacity: 0.08 } }]
+      });
+
+      chart("heart-recovery", {
+        color: [C.blue, C.plum],
+        grid: baseGrid({ right: 56, bottom: daily.length > 160 ? 62 : 42 }),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 11 } },
+        xAxis: { type: "time", ...axisStyle() },
+        yAxis: [
+          { type: "value", name: "bpm", min: 40, max: 90, ...axisStyle() },
+          { type: "value", name: "ms", min: 0, max: 140, ...axisStyle() }
+        ],
+        dataZoom: daily.length > 160 ? [{ type: "inside" }, { type: "slider", height: 15, bottom: 6 }] : [],
+        series: [
+          { name: "静息心率", type: "line", data: daily.filter(item => item.resting_hr != null).map(item => [item.date, item.resting_hr]), symbol: "none", lineStyle: { width: 2.4 } },
+          { name: "HRV", type: "line", yAxisIndex: 1, data: daily.filter(item => item.hrv != null).map(item => [item.date, item.hrv]), symbol: "none", lineStyle: { width: 2 } }
+        ]
+      });
+
+      chart("heart-oxygen", {
+        color: [C.coral, C.blue],
+        grid: baseGrid({ right: 56 }),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 10 } },
+        xAxis: { type: "category", data: monthly.map(item => item.date), ...axisStyle() },
+        yAxis: [
+          { type: "value", name: "%", min: 88, max: 100, ...axisStyle() },
+          { type: "value", name: "次/分", min: 12, max: 24, ...axisStyle() }
+        ],
+        series: [
+          { name: "血氧", type: "line", data: monthly.map(item => item.oxygen_mean == null ? null : item.oxygen_mean * 100), symbol: "circle", symbolSize: 5, lineStyle: { width: 2.3 } },
+          { name: "呼吸频率", type: "line", yAxisIndex: 1, data: monthly.map(item => item.respiratory_rate_mean), symbol: "circle", symbolSize: 5, lineStyle: { width: 2 } }
+        ]
+      });
+
+      const vo2 = filteredPoints("vo2max");
+      const recovery = filteredPoints("heart_recovery");
+      chart("heart-vo2", {
+        color: [C.green, C.amber],
+        grid: baseGrid({ right: 56 }),
+        tooltip: { trigger: "item", backgroundColor: "rgba(23,37,39,0.94)", borderWidth: 0, textStyle: { color: "#fff", fontSize: 12 } },
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 10 } },
+        xAxis: { type: "time", ...axisStyle() },
+        yAxis: [
+          { type: "value", name: "mL/min·kg", min: 40, max: 52, ...axisStyle() },
+          { type: "value", name: "bpm", min: 15, max: 55, ...axisStyle() }
+        ],
+        series: [
+          { name: "VO₂ max", type: "scatter", data: vo2.map(item => [item.date, item.value]), symbolSize: 8, itemStyle: { color: C.green } },
+          { name: "恢复心率", type: "scatter", yAxisIndex: 1, data: (D.points.heart_recovery || []).map(item => [item.date, item.value]), symbolSize: 8, itemStyle: { color: C.amber } }
+        ]
+      });
+
+      const events = (D.events.high_heart_rate || []).filter(item => item.date >= rangeStart());
+      document.getElementById("heart-events").innerHTML = events.length ? `
+        <table class="data-table">
+          <thead><tr><th>日期</th><th>开始时间</th><th>持续</th><th>阈值</th></tr></thead>
+          <tbody>${events.map(item => {
+            const start = new Date(item.start);
+            const end = new Date(item.end);
+            return `<tr>
+              <td>${item.date}</td>
+              <td class="num">${start.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}</td>
+              <td class="num">${Math.round((end - start) / 60000)} 分钟</td>
+              <td>${item.threshold || "—"}</td>
+            </tr>`;
+          }).join("")}</tbody>
+        </table>` : `<div class="empty-note">当前范围没有高心率提醒</div>`;
+    }
+
+    function renderMobility() {
+      const monthly = filteredMonthly();
+      const daily = filteredDaily();
+      const speed = D.histograms.walking_speed;
+      const stepLength = D.histograms.step_length;
+
+      chart("mobility-main", {
+        color: [C.blue, C.green],
+        grid: baseGrid({ right: 56 }),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 11 } },
+        xAxis: { type: "category", data: monthly.map(item => item.date), ...axisStyle() },
+        yAxis: [
+          { type: "value", name: "km/h", min: 3.5, max: 4.6, ...axisStyle() },
+          { type: "value", name: "cm", min: 50, max: 90, ...axisStyle() }
+        ],
+        series: [
+          { name: "步行速度", type: "line", data: monthly.map(item => item.walking_speed_mean), symbolSize: 5, lineStyle: { width: 2.4 } },
+          { name: "步长", type: "line", yAxisIndex: 1, data: monthly.map(item => item.step_length_mean), symbolSize: 5, lineStyle: { width: 2 } }
+        ]
+      });
+
+      chart("mobility-hist", {
+        color: [C.blue, C.green],
+        grid: baseGrid({ left: 58, right: 30 }),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 10 } },
+        xAxis: [
+          { type: "category", data: speed.map(item => item.label.toFixed(1)), ...axisStyle() },
+          { type: "category", data: stepLength.map(item => item.label.toFixed(0)), ...axisStyle() }
+        ],
+        yAxis: [
+          { type: "value", ...axisStyle() },
+          { type: "value", ...axisStyle() }
+        ],
+        series: [
+          { name: "速度", type: "bar", data: speed.map(item => item.count), barMaxWidth: 10, itemStyle: { color: C.blue } },
+          { name: "步长", type: "bar", xAxisIndex: 1, yAxisIndex: 1, data: stepLength.map(item => item.count), barMaxWidth: 10, itemStyle: { color: C.green } }
+        ]
+      });
+
+      chart("mobility-gait", {
+        color: [C.plum, C.coral],
+        grid: baseGrid({ right: 56 }),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 11 } },
+        xAxis: { type: "category", data: monthly.map(item => item.date), ...axisStyle() },
+        yAxis: [
+          { type: "value", name: "%", min: 0, max: 0.1, axisLabel: { color: C.muted, fontSize: 11, formatter: v => `${(v * 100).toFixed(1)}%` }, axisLine: { lineStyle: { color: C.line } }, axisTick: { show: false }, splitLine: { lineStyle: { color: "rgba(23,37,39,0.08)", type: "dashed" } } },
+          { type: "value", name: "%", min: 0.18, max: 0.36, axisLabel: { color: C.muted, fontSize: 11, formatter: v => `${(v * 100).toFixed(0)}%` }, axisLine: { lineStyle: { color: C.line } }, axisTick: { show: false }, splitLine: { lineStyle: { color: "rgba(23,37,39,0.08)", type: "dashed" } } }
+        ],
+        series: [
+          { name: "不对称", type: "line", data: monthly.map(item => item.asymmetry_mean), symbolSize: 5, lineStyle: { width: 2.2 } },
+          { name: "双足支撑", type: "line", yAxisIndex: 1, data: monthly.map(item => item.double_support_mean), symbolSize: 5, lineStyle: { width: 2.2 } }
+        ]
+      });
+
+      chart("mobility-steadiness", {
+        color: [C.teal],
+        grid: baseGrid(),
+        tooltip: { trigger: "item", backgroundColor: "rgba(23,37,39,0.94)", borderWidth: 0, textStyle: { color: "#fff", fontSize: 12 } },
+        xAxis: { type: "time", ...axisStyle() },
+        yAxis: { type: "value", name: "稳定性", min: 0.9, max: 1.02, ...axisStyle() },
+        series: [{ name: "步行稳定性", type: "scatter", data: daily.filter(item => item.walking_steadiness != null).map(item => [item.date, item.walking_steadiness]), symbolSize: 7, itemStyle: { color: C.teal } }]
+      });
+
+      chart("mobility-six-minute", {
+        color: [C.amber],
+        grid: baseGrid(),
+        tooltip: { trigger: "item", backgroundColor: "rgba(23,37,39,0.94)", borderWidth: 0, textStyle: { color: "#fff", fontSize: 12 } },
+        xAxis: { type: "time", ...axisStyle() },
+        yAxis: { type: "value", name: "m", min: 450, max: 520, ...axisStyle() },
+        series: [{ name: "六分钟步行", type: "scatter", data: filteredPoints("six_minute_walk").map(item => [item.date, item.value]), symbolSize: 9, itemStyle: { color: C.amber } }]
+      });
+
+      chart("mobility-stairs", {
+        color: [C.coral, C.blue],
+        grid: baseGrid(),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 10 } },
+        xAxis: { type: "time", ...axisStyle() },
+        yAxis: { type: "value", name: "m/s", min: 0, max: 1, ...axisStyle() },
+        series: [
+          { name: "上楼", type: "line", data: daily.filter(item => item.stair_ascent != null).map(item => [item.date, item.stair_ascent]), symbol: "none", lineStyle: { width: 2 } },
+          { name: "下楼", type: "line", data: daily.filter(item => item.stair_descent != null).map(item => [item.date, item.stair_descent]), symbol: "none", lineStyle: { width: 2 } }
+        ]
+      });
+    }
+
+    function renderHabits() {
+      const monthly = filteredMonthly();
+      const daily = filteredDaily();
+      const body = filteredPoints("body_mass");
+      const height = filteredPoints("height");
+      const bmi = filteredPoints("bmi");
+      const bpS = filteredPoints("bp_systolic");
+      const bpD = filteredPoints("bp_diastolic");
+
+      chart("habits-body", {
+        color: [C.coral, C.blue, C.teal],
+        grid: baseGrid({ right: 56 }),
+        tooltip: { trigger: "item", backgroundColor: "rgba(23,37,39,0.94)", borderWidth: 0, textStyle: { color: "#fff", fontSize: 12 } },
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 10 } },
+        xAxis: { type: "time", ...axisStyle() },
+        yAxis: [
+          { type: "value", name: "kg", min: 48, max: 68, ...axisStyle() },
+          { type: "value", name: "BMI", min: 14, max: 25, ...axisStyle() }
+        ],
+        series: [
+          { name: "体重", type: "scatter", data: body.map(item => [item.date, item.value]), symbolSize: 11, itemStyle: { color: C.coral } },
+          { name: "BMI", type: "scatter", yAxisIndex: 1, data: bmi.map(item => [item.date, item.value]), symbolSize: 9, itemStyle: { color: C.blue } }
+        ]
+      });
+
+      chart("habits-blood-pressure", {
+        color: [C.coral, C.blue],
+        grid: baseGrid(),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 10 } },
+        xAxis: { type: "time", ...axisStyle() },
+        yAxis: { type: "value", name: "mmHg", min: 50, max: 145, ...axisStyle() },
+        series: [
+          { name: "收缩压", type: "line", data: bpS.map(item => [item.date, item.value]), symbolSize: 7, lineStyle: { width: 2 } },
+          { name: "舒张压", type: "line", data: bpD.map(item => [item.date, item.value]), symbolSize: 7, lineStyle: { width: 2 } }
+        ]
+      });
+
+      chart("habits-mindfulness", {
+        color: [C.plum],
+        grid: baseGrid(),
+        tooltip: tooltipStyle(),
+        xAxis: { type: "category", data: monthly.map(item => item.date), ...axisStyle() },
+        yAxis: { type: "value", name: "分钟", ...axisStyle() },
+        dataZoom: monthly.length > 30 ? [{ type: "inside" }, { type: "slider", height: 15, bottom: 5 }] : [],
+        series: [{ name: "正念时长", type: "bar", data: monthly.map(item => item.mindful_min_sum || 0), barMaxWidth: 24, itemStyle: { color: C.plum, borderRadius: [3, 3, 0, 0] } }]
+      });
+
+      chart("habits-handwash", {
+        color: [C.teal],
+        grid: baseGrid(),
+        tooltip: tooltipStyle(),
+        xAxis: { type: "time", ...axisStyle() },
+        yAxis: { type: "value", name: "次", minInterval: 1, ...axisStyle() },
+        series: [{ name: "洗手", type: "line", data: daily.filter(item => item.handwashing != null).map(item => [item.date, item.handwashing]), symbol: "none", lineStyle: { width: 2 }, areaStyle: { opacity: 0.08 } }]
+      });
+
+      chart("habits-headphone", {
+        color: [C.coral],
+        grid: baseGrid(),
+        tooltip: tooltipStyle(),
+        xAxis: { type: "category", data: D.histograms.headphone_db.map(item => item.label.toFixed(0)), ...axisStyle() },
+        yAxis: { type: "value", ...axisStyle() },
+        series: [{ type: "bar", data: D.histograms.headphone_db.map(item => item.count), barMaxWidth: 14, itemStyle: { color: C.coral } }]
+      });
+
+      chart("habits-environment", {
+        color: [C.amber],
+        grid: baseGrid(),
+        tooltip: tooltipStyle(),
+        xAxis: { type: "time", ...axisStyle() },
+        yAxis: { type: "value", name: "dB", min: 30, max: 110, ...axisStyle() },
+        series: [{ name: "环境噪声", type: "line", data: daily.filter(item => item.environmental_db != null).map(item => [item.date, item.environmental_db]), symbol: "none", lineStyle: { width: 1.5 }, areaStyle: { opacity: 0.08 } }]
+      });
+    }
+
+    function renderQuality() {
+      const metrics = ["steps", "active_energy", "heart_rate", "sleep", "hrv", "walking_speed"];
+      const heat = [];
+      for (const row of D.coverage_monthly) {
+        for (const metric of metrics) {
+          heat.push([metrics.indexOf(metric), D.coverage_monthly.indexOf(row), row[metric] || 0]);
+        }
+      }
+      chart("quality-coverage", {
+        visualMap: {
+          min: 0,
+          max: 31,
+          inRange: { color: ["#ece8dd", C.teal] },
+          calculable: true,
+          orient: "horizontal",
+          left: "center",
+          bottom: 0,
+          textStyle: { color: C.muted, fontSize: 10 }
+        },
+        grid: baseGrid({ left: 90, bottom: 60 }),
+        tooltip: {
+          formatter: p => `${metricNames[metrics[p.value[0]]]} · ${D.coverage_monthly[p.value[1]].date}<br><strong>${p.value[2]} 天有记录</strong>`,
+          backgroundColor: "rgba(23,37,39,0.94)",
+          borderWidth: 0,
+          textStyle: { color: "#fff", fontSize: 12 }
+        },
+        xAxis: { type: "category", data: D.coverage_monthly.map(item => item.date), ...axisStyle(), axisLabel: { color: C.muted, fontSize: 9, rotate: 45 } },
+        yAxis: { type: "category", data: metrics.map(metric => metricNames[metric]), ...axisStyle() },
+        series: [{ type: "heatmap", data: heat, itemStyle: { borderColor: C.paper, borderWidth: 2 } }]
+      });
+
+      const sourceMetrics = ["steps", "heart_rate", "active_energy", "sleep", "resting_hr", "hrv"];
+      const sourceNames = [...new Set(sourceMetrics.flatMap(metric => Object.keys(D.selected_source_days[metric] || {})))];
+      chart("quality-source", {
+        color: PALETTE,
+        grid: baseGrid({ left: 130 }),
+        tooltip: tooltipStyle(),
+        legend: { top: 0, textStyle: { color: C.muted, fontSize: 9 } },
+        xAxis: { type: "value", ...axisStyle() },
+        yAxis: { type: "category", data: sourceMetrics.map(metric => metricNames[metric]), ...axisStyle() },
+        series: sourceNames.map((source, index) => ({
+          name: source,
+          type: "bar",
+          stack: "source",
+          barMaxWidth: 22,
+          itemStyle: { color: PALETTE[index % PALETTE.length] },
+          data: sourceMetrics.map(metric => D.selected_source_days[metric]?.[source] || 0)
+        }))
+      });
+
+      const gaps = Object.entries(D.gaps).flatMap(([metric, rows]) => rows.slice(0, 3).map(row => ({ metric, ...row })));
+      document.getElementById("quality-gaps").innerHTML = gaps.length ? `
+        <table class="data-table">
+          <thead><tr><th>指标</th><th>开始</th><th>结束</th><th>天数</th></tr></thead>
+          <tbody>${gaps.map(item => `
+            <tr>
+              <td>${metricNames[item.metric] || item.metric}</td>
+              <td>${item.start}</td>
+              <td>${item.end}</td>
+              <td class="num">${item.days}</td>
+            </tr>`).join("")}
+          </tbody>
+        </table>` : `<div class="empty-note">未发现超过 7 天的明显断档</div>`;
+
+      const covered = (key) => `${D.coverage[key]?.days || 0} 天`;
+      const dictionary = [
+        ["步数", "count", covered("steps"), "多设备按优先级去重"],
+        ["主动能量", "kcal", covered("active_energy"), "分钟级记录逐日汇总"],
+        ["心率", "count/min", covered("heart_rate"), "来源去重"],
+        ["主睡眠", "小时", covered("sleep"), "过滤短睡眠与异常长记录"],
+        ["HRV", "ms", covered("hrv"), "按来源优先级取日平均"],
+        ["静息心率", "bpm", covered("resting_hr"), "按来源优先级取日平均"],
+        ["血氧", "%", covered("oxygen"), "按来源优先级取日平均"],
+        ["呼吸频率", "次/分", covered("respiratory_rate"), "按来源优先级取日平均"],
+        ["VO₂ max", "mL/min·kg", covered("vo2max"), "离散估计"],
+        ["步行速度", "km/h", covered("walking_speed"), "按来源优先级取日平均"],
+        ["步行稳定性", "%", covered("walking_steadiness"), "离散记录"],
+        ["腕温", "°C", covered("wrist_temp"), "夜间睡眠窗口"],
+        ["训练", "分钟", `${D.workouts.length} 条`, "按运动类型汇总"]
+      ];
+      document.getElementById("quality-metrics").innerHTML = `
+        <table class="data-table">
+          <thead><tr><th>指标</th><th>单位</th><th>覆盖</th><th>说明</th></tr></thead>
+          <tbody>${dictionary.map(row => `<tr><td>${row[0]}</td><td>${row[1]}</td><td class="num">${row[2]}</td><td>${row[3]}</td></tr>`).join("")}</tbody>
+        </table>`;
+    }
+
+    function renderCurrentTab() {
+      if (activeTab === "overview") renderOverview();
+      if (activeTab === "activity") renderActivity();
+      if (activeTab === "sleep") renderSleep();
+      if (activeTab === "heart") renderHeart();
+      if (activeTab === "mobility") renderMobility();
+      if (activeTab === "habits") renderHabits();
+      if (activeTab === "quality") renderQuality();
+      requestAnimationFrame(() => charts.forEach(instance => instance.resize()));
+    }
+
+    function activateTab(name) {
+      activeTab = name;
+      document.querySelectorAll(".tab-panel").forEach(panel => panel.classList.toggle("active", panel.id === `tab-${name}`));
+      document.querySelectorAll(".tab-button").forEach(button => button.classList.toggle("active", button.dataset.tab === name));
+      renderCurrentTab();
+    }
+
+    function setRange(days) {
+      rangeDays = Number(days);
+      document.querySelectorAll(".range-control button").forEach(button => {
+        button.classList.toggle("active", Number(button.dataset.range) === rangeDays);
+      });
+      heroKpis();
+      renderCurrentTab();
+    }
+
+    document.querySelectorAll(".tab-button").forEach(button => {
+      button.addEventListener("click", () => activateTab(button.dataset.tab));
+    });
+    document.querySelectorAll(".range-control button").forEach(button => {
+      button.addEventListener("click", () => setRange(button.dataset.range));
+    });
+    window.addEventListener("resize", () => charts.forEach(instance => instance.resize()));
+
+    const fileScreen = document.getElementById("file-screen");
+    const fileDrop = document.getElementById("file-drop");
+    const fileInput = document.getElementById("file-input");
+    const fileStatus = document.getElementById("file-status");
+    const appHeader = document.getElementById("app-header");
+    const appTabs = document.getElementById("app-tabs");
+    const appMain = document.getElementById("app-main");
+    const appFooter = document.getElementById("app-footer");
+
+    function resetApplication() {
+      analysisWorker?.terminate();
+      analysisWorker = null;
+      charts.forEach(instance => instance.dispose());
+      charts.clear();
+      D = null;
+      today = null;
+      rangeDays = 90;
+      activeTab = "overview";
+      fileScreen.hidden = false;
+      appHeader.hidden = true;
+      appTabs.hidden = true;
+      appMain.hidden = true;
+      appFooter.hidden = true;
+      document.querySelectorAll(".range-control button").forEach(button => {
+        button.classList.toggle("active", button.dataset.range === "90");
+      });
+      document.querySelectorAll(".tab-button").forEach(button => {
+        button.classList.toggle("active", button.dataset.tab === "overview");
+      });
+      document.querySelectorAll(".tab-panel").forEach(panel => {
+        panel.classList.toggle("active", panel.id === "tab-overview");
+      });
+    }
+
+    function showData(data) {
+      D = data;
+      today = D.daily.at(-1)?.date || D.meta.last_date;
+      if (!today) {
+        throw new Error("The export did not contain usable dated health records.");
+      }
+      fileScreen.hidden = true;
+      appHeader.hidden = false;
+      appTabs.hidden = false;
+      appMain.hidden = false;
+      appFooter.hidden = false;
+      document.getElementById("footer-note").textContent =
+        `数据来自本地 Apple Health CSV 导出，共 ${D.meta.file_count} 个文件；` +
+        `所有时间已转换为 ${D.meta.time_zone || localTimeZone()}；` +
+        "同日多来源数据按可信度顺序去重；睡眠趋势仅保留主睡眠。本报告为个人数据观察，不构成医疗建议。";
+      renderMeta();
+      renderInsights();
+      setRange(90);
+    }
+
+    function loadFile(file) {
+      if (!file) return;
+      analysisWorker?.terminate();
+      analysisWorker = null;
+      const size = file.size > 1_048_576
+        ? `${(file.size / 1_048_576).toFixed(1)} MB`
+        : `${Math.max(1, Math.round(file.size / 1024))} KB`;
+      fileStatus.textContent = `正在本地读取 ${size} 的导出文件…`;
+      fileDrop.setAttribute("aria-busy", "true");
+
+      const finish = (error = null) => {
+        analysisWorker?.terminate();
+        analysisWorker = null;
+        fileDrop.removeAttribute("aria-busy");
+        if (error) {
+          console.error(error);
+          fileStatus.textContent = `无法解析文件：${error.message || error || "格式不支持"}`;
+        }
+      };
+
+      if (typeof Worker !== "undefined") {
+        analysisWorker = new Worker(new URL("./src/worker.js", import.meta.url), {
+          type: "module",
+        });
+        analysisWorker.addEventListener("message", event => {
+          if (event.data.type === "progress") {
+            const { current, total } = event.data.progress;
+            fileStatus.textContent = `正在解析 CSV ${current} / ${total}…`;
+          } else if (event.data.type === "done") {
+            try {
+              showData(event.data.data);
+              finish();
+            } catch (error) {
+              finish(error);
+            }
+          } else if (event.data.type === "error") {
+            finish(new Error(event.data.error));
+          }
+        });
+        analysisWorker.addEventListener("error", event => {
+          finish(new Error(event.message || "The local worker stopped unexpectedly."));
+        });
+        analysisWorker.postMessage(file);
+        return;
+      }
+
+      analyzeZipFile(file, {
+        onProgress: ({ current, total }) => {
+          fileStatus.textContent = `正在解析 CSV ${current} / ${total}…`;
+        },
+      }).then(data => {
+        showData(data);
+        finish();
+      }).catch(finish);
+    }
+
+    function pickFile() {
+      resetApplication();
+      fileInput.value = "";
+      fileInput.click();
+    }
+
+    fileDrop.addEventListener("click", pickFile);
+    fileDrop.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        pickFile();
+      }
+    });
+    fileDrop.addEventListener("dragover", event => {
+      event.preventDefault();
+      fileDrop.classList.add("dragging");
+    });
+    fileDrop.addEventListener("dragleave", () => fileDrop.classList.remove("dragging"));
+    fileDrop.addEventListener("drop", event => {
+      event.preventDefault();
+      fileDrop.classList.remove("dragging");
+      loadFile(event.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener("change", () => loadFile(fileInput.files[0]));
+    document.getElementById("change-file").addEventListener("click", pickFile);
+  </script>
+</body>
+</html>
